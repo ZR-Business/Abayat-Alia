@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Abayat Alia</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#C9A96E;--deep:#1A1209;--mocha:#4A3728;--cream:#FAF6F0;--red:#ef4444;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Tajawal',sans-serif;background:#f8f4ee;color:var(--deep);min-height:100vh;}
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--deep);}
+  .login-box{background:var(--cream);padding:36px 28px;width:100%;max-width:360px;}
+  .login-logo{font-size:22px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:6px;letter-spacing:2px;}
+  .login-sub{text-align:center;font-size:12px;color:var(--mocha);margin-bottom:28px;letter-spacing:3px;}
+  .login-err{background:#fee2e2;color:var(--red);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none;}
+  .field{margin-bottom:14px;}
+  .field label{font-size:11px;letter-spacing:1px;color:var(--mocha);text-transform:uppercase;display:block;margin-bottom:5px;font-weight:500;}
+  .field input,.field select{width:100%;border:1px solid #DDD;padding:11px 13px;font-family:'Tajawal',sans-serif;font-size:14px;background:#fff;outline:none;transition:border-color .2s;color:var(--deep);}
+  .field input:focus{border-color:var(--gold);}
+  .btn-login{width:100%;background:var(--gold);color:var(--deep);border:none;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;letter-spacing:1px;margin-top:4px;}
+  .app{display:none;}
+  .topbar{background:var(--deep);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .topbar-logo{font-size:16px;font-weight:700;color:var(--gold);}
+  .topbar-logo span{font-size:10px;color:rgba(255,255,255,.4);display:block;letter-spacing:3px;}
+  .btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Tajawal',sans-serif;}
+  .main{padding:20px;max-width:700px;margin:0 auto;}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+  .stat-card{background:#fff;border:1px solid rgba(201,169,110,.2);padding:16px;text-align:center;}
+  .stat-n{font-size:28px;font-weight:700;color:var(--gold);}
+  .stat-l{font-size:11px;color:var(--mocha);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mocha);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:rgba(201,169,110,.3);}
+  .form-card{background:#fff;border:1px solid rgba(201,169,110,.2);padding:20px;margin-bottom:24px;}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .color-section{margin-bottom:16px;}
+  .color-section>label{font-size:11px;letter-spacing:1px;color:var(--mocha);text-transform:uppercase;display:block;margin-bottom:8px;font-weight:500;}
+  .cpresets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .cp{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s;flex-shrink:0;}
+  .cp.on{border-color:var(--deep);}
+  .color-custom{display:flex;align-items:center;gap:10px;}
+  .color-custom input[type="color"]{width:40px;height:36px;border:1px solid #DDD;padding:2px;cursor:pointer;background:#fff;}
+  .cbox{width:36px;height:36px;border:1px solid #DDD;flex-shrink:0;}
+  .chex{font-size:13px;color:var(--mocha);}
+  .media-section{margin-bottom:16px;}
+  .media-section>label{font-size:11px;letter-spacing:1px;color:var(--mocha);text-transform:uppercase;display:block;margin-bottom:6px;font-weight:500;}
+  .media-hint{font-size:11px;color:var(--mocha);margin-bottom:10px;line-height:1.6;background:rgba(201,169,110,.07);padding:10px;border-left:3px solid var(--gold);}
+  .media-btns{display:flex;gap:10px;margin-bottom:12px;}
+  .mbtn{flex:1;border:1px dashed rgba(201,169,110,.5);background:#fff;padding:12px;font-size:13px;cursor:pointer;font-family:'Tajawal',sans-serif;color:var(--mocha);display:flex;align-items:center;justify-content:center;gap:6px;transition:border-color .2s,background .2s;}
+  .mbtn:hover{border-color:var(--gold);background:#faf6f0;}
+  .mbtn:disabled{opacity:.4;cursor:not-allowed;}
+  .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px;}
+  .mslot{position:relative;height:100px;background:#f5f0e8;border:1px solid rgba(201,169,110,.2);overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .mslot img,.mslot video{width:100%;height:100%;object-fit:cover;}
+  .mslot .vbadge{position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;padding:2px 5px;border-radius:2px;pointer-events:none;}
+  .mslot .play-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);pointer-events:none;}
+  .mslot .play-icon span{font-size:24px;color:#fff;}
+  .mslot .rmv{position:absolute;top:3px;right:3px;background:rgba(239,68,68,.9);color:#fff;border:none;width:20px;height:20px;font-size:11px;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:700;z-index:2;}
+  .mslot .main-badge{position:absolute;top:3px;left:3px;background:var(--gold);color:var(--deep);font-size:9px;padding:2px 5px;pointer-events:none;}
+  .media-count{font-size:11px;color:var(--mocha);}
+  .media-count span{color:var(--gold);font-weight:700;}
+  #inp-photo,#inp-video{display:none;}
+  .btn-add{width:100%;background:var(--deep);color:var(--gold);border:none;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
+  .btn-add:disabled{opacity:.5;cursor:not-allowed;}
+  .spin{width:16px;height:16px;border:2px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;display:none;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .prod-list{display:flex;flex-direction:column;gap:12px;}
+  .prod-item{background:#fff;border:1px solid rgba(201,169,110,.15);padding:14px;display:flex;gap:12px;align-items:center;}
+  .thumbs{display:flex;gap:4px;flex-shrink:0;}
+  .th{width:50px;height:60px;background:#f5f0e8;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+  .th img,.th video{width:100%;height:100%;object-fit:cover;}
+  .th .vico{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;pointer-events:none;}
+  .pinfo{flex:1;min-width:0;}
+  .pname{font-size:14px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .par{font-size:12px;color:var(--mocha);direction:rtl;margin-bottom:4px;}
+  .ppr{font-size:14px;font-weight:700;color:var(--gold);}
+  .ppr span{color:#bbb;text-decoration:line-through;font-size:12px;font-weight:400;margin-left:4px;}
+  .pmeta{font-size:11px;color:var(--mocha);margin-top:3px;}
+  .bdg{display:inline-block;background:var(--gold);color:var(--deep);font-size:9px;padding:2px 7px;letter-spacing:1px;margin-bottom:4px;}
+  .btn-del{background:#fee2e2;color:var(--red);border:none;padding:8px 12px;font-size:12px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;flex-shrink:0;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--deep);color:var(--gold);padding:12px 24px;font-size:13px;font-weight:500;z-index:9999;display:none;white-space:nowrap;}
+  .toast.on{display:block;animation:fi .3s;}
+  @keyframes fi{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  .empty{text-align:center;padding:40px 20px;color:var(--mocha);font-size:14px;}
+  .ldr{position:fixed;inset:0;background:rgba(26,18,9,.88);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+  .ldr.on{display:flex;}
+  .ldr p{color:var(--gold);font-size:14px;text-align:center;max-width:280px;line-height:1.7;}
+  .bspin{width:40px;height:40px;border:3px solid rgba(201,169,110,.2);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;}
+  .ldr-progress{width:260px;height:5px;background:rgba(255,255,255,.1);margin-top:8px;border-radius:3px;}
+  .ldr-fill{height:100%;background:var(--gold);width:0%;transition:width .4s;border-radius:3px;}
+  @media(max-width:500px){.frow{grid-template-columns:1fr;}.media-btns{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<script>
+  // ⚙️ CONFIG — remplace COLLE_TON_NOUVEAU_TOKEN_ICI par ton nouveau ghp_...
+  const ADMIN_PASSWORD = "abayat2026";
+  const GITHUB_TOKEN   = "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";
+  const GITHUB_REPO    = "zr-business/Abayat-Alia";
+  const GITHUB_FILE    = "products.json";
+  const GITHUB_BRANCH  = "main";
+</script>
+
+<!-- LOGIN -->
+<div class="login-screen" id="ls">
+  <div class="login-box">
+    <div class="login-logo">Abayat Alia</div>
+    <div class="login-sub">ADMIN · لوحة التحكم</div>
+    <div class="login-err" id="lerr">Mot de passe incorrect ❌</div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-login" onclick="login()">Entrer →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-logo">Admin Abayat Alia<span>لوحة التحكم</span></div>
+    <button class="btn-logout" onclick="logout()">Déco</button>
+  </div>
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-n" id="sc">0</div><div class="stat-l">Produits</div></div>
+      <div class="stat-card">
+        <div class="stat-n">
+          <a href="https://zr-business.github.io/Abayat-Alia/" target="_blank"
+             style="color:var(--gold);text-decoration:none;font-size:13px;">Voir site ↗</a>
+        </div>
+        <div class="stat-l">En ligne</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Ajouter un produit</div>
+    <div class="form-card">
+      <div class="frow" style="margin-bottom:14px;">
+        <div class="field"><label>Nom (FR)</label><input type="text" id="p-nom" placeholder="Abaya Royale"></div>
+        <div class="field"><label>Nom (AR) اسم</label><input type="text" id="p-ar" placeholder="عباءة رويال" dir="rtl"></div>
+        <div class="field"><label>Prix (MAD)</label><input type="number" id="p-prix" placeholder="580"></div>
+        <div class="field"><label>Ancien prix</label><input type="number" id="p-anc" placeholder="750"></div>
+        <div class="field"><label>Badge</label><input type="text" id="p-badge" placeholder="Nouveau / -20%"></div>
+        <div class="field"><label>Type badge</label>
+          <select id="p-nb"><option value="true">Doré</option><option value="false">Sombre</option></select>
+        </div>
+      </div>
+
+      <!-- COULEUR -->
+      <div class="color-section">
+        <label>Couleur silhouette (si pas de média)</label>
+        <div class="cpresets" id="cpresets">
+          <div class="cp on" style="background:#2A2218" onclick="setCoul('#2A2218',this)"></div>
+          <div class="cp" style="background:#8A7A64" onclick="setCoul('#8A7A64',this)"></div>
+          <div class="cp" style="background:#5A3A10" onclick="setCoul('#5A3A10',this)"></div>
+          <div class="cp" style="background:#5A4A6A" onclick="setCoul('#5A4A6A',this)"></div>
+          <div class="cp" style="background:#1A3A2A" onclick="setCoul('#1A3A2A',this)"></div>
+          <div class="cp" style="background:#3A1A2A" onclick="setCoul('#3A1A2A',this)"></div>
+          <div class="cp" style="background:#C9A96E" onclick="setCoul('#C9A96E',this)"></div>
+          <div class="cp" style="background:#2A3A5A" onclick="setCoul('#2A3A5A',this)"></div>
+        </div>
+        <div class="color-custom">
+          <input type="color" id="cpicker" value="#2A2218" oninput="setCoulCustom(this.value)">
+          <div class="cbox" id="cbox" style="background:#2A2218;"></div>
+          <span class="chex" id="chex">#2A2218</span>
+        </div>
+      </div>
+
+      <!-- MÉDIAS -->
+      <div class="media-section">
+        <label>Photos & Vidéos (max 10) 📸🎥</label>
+        <div class="media-hint">
+          📌 Le 1er média = vignette principale sur le site<br>
+          ✅ Quand tu cliques <strong>"Ajouter & Publier"</strong> → les produits s'affichent automatiquement sur <strong>zr-business.github.io/Abayat-Alia</strong>
+        </div>
+        <div class="media-btns">
+          <button class="mbtn" id="btn-add-photo" onclick="document.getElementById('inp-photo').click()">📸 Ajouter photos</button>
+          <button class="mbtn" id="btn-add-video" onclick="document.getElementById('inp-video').click()">🎥 Ajouter vidéo</button>
+        </div>
+        <div class="media-grid" id="mgrid"></div>
+        <div class="media-count">Médias: <span id="mcount">0</span>/10</div>
+        <input type="file" id="inp-photo" accept="image/*" multiple onchange="handleMedia(this,'photo')">
+        <input type="file" id="inp-video" accept="video/*" onchange="handleMedia(this,'video')">
+      </div>
+
+      <button class="btn-add" id="badd" onclick="ajouter()">
+        <span id="btxt">✚ Ajouter & Publier sur le site</span>
+        <div class="spin" id="bspin"></div>
+      </button>
+    </div>
+
+    <div class="sec-title">Mes produits publiés</div>
+    <div class="prod-list" id="plist"><div class="empty">Chargement...</div></div>
+  </div>
+</div>
+
+<!-- LOADER -->
+<div class="ldr" id="ldr">
+  <div class="bspin"></div>
+  <p id="ldr-msg">Publication en cours...</p>
+  <div class="ldr-progress"><div class="ldr-fill" id="ldr-fill"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let couleur = '#2A2218';
+let medias  = [];
+
+// ===== AUTH =====
+function login() {
+  if (document.getElementById('pwd').value === ADMIN_PASSWORD) {
+    document.getElementById('ls').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadProduits();
+  } else {
+    document.getElementById('lerr').style.display = 'block';
+  }
+}
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('ls').style.display  = 'flex';
+}
+
+// ===== COULEUR =====
+function setCoul(c, el) {
+  couleur = c;
+  document.querySelectorAll('.cp').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('cpicker').value         = c;
+  document.getElementById('cbox').style.background = c;
+  document.getElementById('chex').textContent      = c;
+}
+function setCoulCustom(c) {
+  couleur = c;
+  document.querySelectorAll('.cp').forEach(e => e.classList.remove('on'));
+  document.getElementById('cbox').style.background = c;
+  document.getElementById('chex').textContent      = c;
+}
+
+// ===== MEDIA =====
+function handleMedia(inp, type) {
+  [...inp.files].forEach(f => {
+    if (medias.length >= 50) return;
+    medias.push({ url: URL.createObjectURL(f), type, file: f });
+  });
+  inp.value = '';
+  renderMgrid();
+  updateMbtns();
+}
+function renderMgrid() {
+  const g = document.getElementById('mgrid');
+  g.innerHTML = '';
+  medias.forEach((m, i) => {
+    const d = document.createElement('div');
+    d.className = 'mslot';
+    if (m.type === 'photo') {
+      d.innerHTML = `<img src="${m.url}">
+        ${i===0 ? '<div class="main-badge">✦ MAIN</div>' : ''}
+        <button class="rmv" onclick="rmMedia(${i})">✕</button>`;
+    } else {
+      d.innerHTML = `<video src="${m.url}" muted playsinline></video>
+        <div class="play-icon"><span>▶</span></div>
+        <div class="vbadge">🎥</div>
+        ${i===0 ? '<div class="main-badge">✦ MAIN</div>' : ''}
+        <button class="rmv" onclick="rmMedia(${i})">✕</button>`;
+    }
+    g.appendChild(d);
+  });
+  document.getElementById('mcount').textContent = medias.length;
+}
+function rmMedia(i) { medias.splice(i,1); renderMgrid(); updateMbtns(); }
+function updateMbtns() {
+  const full = medias.length >= 50;
+  document.getElementById('btn-add-photo').disabled = full;
+  document.getElementById('btn-add-video').disabled = full;
+}
+
+// ===== GITHUB API =====
+const GH_API = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+const GH_HDR = () => ({
+  Authorization:  `token ${GITHUB_TOKEN}`,
+  Accept:         'application/vnd.github.v3+json',
+  'Content-Type': 'application/json'
+});
+
+async function ghGet() {
+  const r = await fetch(GH_API, { headers: GH_HDR() });
+  if (r.status === 404) return { content: [], sha: null };
+  if (!r.ok) throw new Error('Erreur lecture GitHub ' + r.status);
+  const d = await r.json();
+  const content = JSON.parse(atob(d.content.replace(/\n/g, '')));
+  return { content, sha: d.sha };
+}
+
+async function ghPush(data, sha) {
+  const body = {
+    message: `produits mis à jour ${new Date().toLocaleString('fr-MA')}`,
+    content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
+    branch:  GITHUB_BRANCH
+  };
+  if (sha) body.sha = sha;
+  const r = await fetch(GH_API, { method: 'PUT', headers: GH_HDR(), body: JSON.stringify(body) });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.message || 'GitHub push error'); }
+  return r.json();
+}
+
+// ===== LOAD =====
+async function loadProduits() {
+  document.getElementById('plist').innerHTML = '<div class="empty">Chargement depuis GitHub...</div>';
+  try {
+    const { content } = await ghGet();
+    renderProduits(content);
+  } catch(e) {
+    document.getElementById('plist').innerHTML = `<div class="empty">❌ ${e.message}</div>`;
+  }
+}
+
+// ===== AJOUTER =====
+async function ajouter() {
+  const nom   = document.getElementById('p-nom').value.trim();
+  const ar    = document.getElementById('p-ar').value.trim();
+  const prix  = +document.getElementById('p-prix').value;
+  const anc   = +document.getElementById('p-anc').value;
+  const badge = document.getElementById('p-badge').value.trim();
+  const nb    = document.getElementById('p-nb').value === 'true';
+
+  if (!nom || !prix) { showToast('⚠ Remplis nom et prix !'); return; }
+
+  const btn = document.getElementById('badd');
+  btn.disabled = true;
+  document.getElementById('btxt').style.display = 'none';
+  document.getElementById('bspin').style.display = 'block';
+
+  try {
+    setLdr('Conversion des médias...', 15);
+
+    const ms = await Promise.all(medias.map(m => new Promise(res => {
+      const fr = new FileReader();
+      fr.onload = e => res({ type: m.type, url: e.target.result });
+      fr.readAsDataURL(m.file);
+    })));
+
+    setLdr('Lecture repo GitHub...', 35);
+    const { content: prods, sha } = await ghGet();
+
+    setLdr('Ajout du produit...', 55);
+    prods.push({ id: Date.now(), nom, ar, prix, ancien: anc, badge, newBadge: nb, couleur, medias: ms });
+
+    setLdr('Publication sur GitHub Pages...', 78);
+    await ghPush(prods, sha);
+
+    setLdr('✓ Publié ! Le site se met à jour...', 100);
+    await sleep(700);
+
+    document.getElementById('ldr').classList.remove('on');
+    resetForm();
+    renderProduits(prods);
+    showToast('✓ Produit publié sur le site !');
+
+  } catch(e) {
+    document.getElementById('ldr').classList.remove('on');
+    showToast('❌ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    document.getElementById('btxt').style.display  = 'block';
+    document.getElementById('bspin').style.display = 'none';
+  }
+}
+
+// ===== SUPPRIMER =====
+async function delProd(i) {
+  if (!confirm('Supprimer ce produit du site ?')) return;
+  setLdr('Suppression en cours...', 30);
+  try {
+    const { content: prods, sha } = await ghGet();
+    prods.splice(i, 1);
+    setLdr('Publication...', 70);
+    await ghPush(prods, sha);
+    setLdr('✓ Supprimé', 100);
+    await sleep(400);
+    document.getElementById('ldr').classList.remove('on');
+    renderProduits(prods);
+    showToast('Produit supprimé du site');
+  } catch(e) {
+    document.getElementById('ldr').classList.remove('on');
+    showToast('❌ ' + e.message);
+  }
+}
+
+// ===== RENDER =====
+function renderProduits(prods) {
+  document.getElementById('sc').textContent = prods.length;
+  const el = document.getElementById('plist');
+  if (!prods.length) { el.innerHTML = '<div class="empty">Aucun produit publié pour l\'instant</div>'; return; }
+  el.innerHTML = prods.map((p, i) => {
+    const ms = p.medias || [];
+    const thumbs = ms.slice(0,2).map(m =>
+      `<div class="th">${m.type==='photo'
+        ? `<img src="${m.url}">`
+        : `<video src="${m.url}" muted></video><div class="vico">▶</div>`
+      }</div>`
+    ).join('');
+    return `<div class="prod-item">
+      <div class="thumbs">${thumbs || `<div class="th" style="background:${p.couleur||'#2A2218'};"></div>`}</div>
+      <div class="pinfo">
+        <div class="bdg">${p.badge||''}</div>
+        <div class="pname">${p.nom}</div>
+        <div class="par">${p.ar||''}</div>
+        <div class="ppr">${p.prix} MAD${p.ancien?`<span>${p.ancien}</span>`:''}</div>
+        <div class="pmeta">📸🎥 ${ms.length} média${ms.length!==1?'s':''}</div>
+      </div>
+      <button class="btn-del" onclick="delProd(${i})">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// ===== HELPERS =====
+function resetForm() {
+  ['p-nom','p-ar','p-prix','p-anc','p-badge'].forEach(id => document.getElementById(id).value = '');
+  medias = []; renderMgrid(); updateMbtns();
+  couleur = '#2A2218';
+  document.getElementById('cpicker').value         = '#2A2218';
+  document.getElementById('cbox').style.background = '#2A2218';
+  document.getElementById('chex').textContent      = '#2A2218';
+  document.querySelectorAll('.cp').forEach((e,i) => e.classList[i===0?'add':'remove']('on'));
+}
+function setLdr(msg, pct) {
+  document.getElementById('ldr').classList.add('on');
+  document.getElementById('ldr-msg').textContent  = msg;
+  document.getElementById('ldr-fill').style.width = pct + '%';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 3200);
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
